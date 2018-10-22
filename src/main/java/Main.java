@@ -13,7 +13,7 @@ I found a tutorial here https://dzone.com/articles/building-simple-restful-api
 https://blog.openshift.com/developing-single-page-web-applications-using-java-8-spark-mongodb-and-angularjs/
 
 Mongodb java documentation  https://mongodb-documentation.readthedocs.io/en/latest/ecosystem/tutorial/getting-started-with-java-driver.html
-Added PATH to my .bash_profile in order to be able to launch mongod from the terminal.  Also had to indicate the --dbpath value
+Added PATH to my .bash_profile in order to be able to launch mongod from the terminal.  Also had to indicate the --dbpath value when trying to launch mongod
 https://docs.mongodb.com/v3.2/tutorial/install-mongodb-on-os-x/
 http://mongodb.github.io/mongo-java-driver/3.4/driver/getting-started/quick-start/
 
@@ -36,7 +36,7 @@ public class Main {
         MongoClient mongoClient = new MongoClient("localhost", 27017);
 
         //connecting to the specific database on the MongoDB database by providing the name of the database
-        MongoDatabase database = mongoClient.getDatabase("myDatabase");
+        MongoDatabase database = mongoClient.getDatabase("MyDatabase");
         System.out.println("Database Name: " + database.getName());
 
         //getting a list of all of the databases that are available on the server to test the connection
@@ -54,9 +54,18 @@ public class Main {
                 .append("lastName","Samaniego Campos")
                 .append("password","password");
 
+        Document anotherUserToBeAdded = new Document("username", "Nbesse")
+                .append("firstName","Nick")
+                .append("lastName","Besse")
+                .append("password","password1");
 
-        //test comment to see if I can push
+        //inserting records/Documents into the Table/Collection in the database
+        myDatabaseUsersCollection.insertOne(userToBeAdded);
+        myDatabaseUsersCollection.insertOne(anotherUserToBeAdded);
 
+        //Storing a Document object from a record/Document that is retrieved from the Table/Collection in the database
+        Document retrievedFromDatabase = myDatabaseUsersCollection.find().first();
+        System.out.println(retrievedFromDatabase.toString());
 
 
 
