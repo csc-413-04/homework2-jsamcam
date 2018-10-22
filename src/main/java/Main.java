@@ -5,6 +5,8 @@ import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+
+import javax.print.Doc;
 //import com.google.code.gson.*;
 
 /*
@@ -48,6 +50,9 @@ public class Main {
         //the generics class here is <Document> but we will use a gson/json object later
         MongoCollection<Document> myDatabaseUsersCollection = database.getCollection("users");
 
+        //getting a Table/Collection for the session tokens that we'll use to manage authentication
+        MongoCollection<Document> sessionTokenCollection = database.getCollection("tokens");
+
         //creating an object to add to the Table/Collection in the database on the server
         Document userToBeAdded = new Document("username", "jsamcam")
                 .append("firstName","Joel")
@@ -59,15 +64,22 @@ public class Main {
                 .append("lastName","Besse")
                 .append("password","password1");
 
+        //we can get a timestamp by using the java.time.Instant.now() method
+        System.out.println(java.time.Instant.now());
+
+        Document userLoginToken = new Document("timestamp", java.time.Instant.now().toString());
+
         //inserting records/Documents into the Table/Collection in the database
         myDatabaseUsersCollection.insertOne(userToBeAdded);
         myDatabaseUsersCollection.insertOne(anotherUserToBeAdded);
 
+        sessionTokenCollection.insertOne(userLoginToken);
         //Storing a Document object from a record/Document that is retrieved from the Table/Collection in the database
         Document retrievedFromDatabase = myDatabaseUsersCollection.find().first();
         System.out.println(retrievedFromDatabase.toString());
 
-
+        //retrieving a token from the token/timestamp database
+        System.out.println((sessionTokenCollection.find().first()));
 
       get("/hello", (req, res) -> "Hello Worlds");
 
@@ -83,6 +95,13 @@ public class Main {
 
       path("/friends", () -> {
           get("", (req, res ) -> "Getting friends...");
+
+      });
+
+      //add custom 404 handling for any path that is not matched above
+      //we might be able to use this to send back an invalid request json
+      path("/",() -> {
+          notFound("<html><body><h1>Custom 404 handling</h1></body></html>");
 
       });
 
