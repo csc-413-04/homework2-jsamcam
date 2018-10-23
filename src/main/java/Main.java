@@ -81,29 +81,37 @@ public class Main {
         //retrieving a token from the token/timestamp database
         System.out.println((sessionTokenCollection.find().first()));
 
-      get("/hello", (req, res) -> "Hello Worlds");
+        ///newuser?username=<username>&password=<pass>
 
-      path("/newuser", () -> {
+        get("/hello", (req, res) -> "Hello Worlds");
 
-          get("", (req, res) -> "Getting user...");
-      });
+        //requirement: /newuser?username=<username>&password=<pass>
+        path("/newuser", () -> {
+            get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
+        });
 
-      path("/addfriend", () -> {
-          //post("/", null);
-          get("", (req, res) -> "Adding friend...");
-      });
+        //requirement: /addfriend?token=<token>&friend=<freindsuserid>
+        path("/addfriend", () -> {
+            get("", (req, res) -> "Request Parameters - token: " + req.queryParams("token") + " friend " + req.queryParams("friend"));
+        });
 
-      path("/friends", () -> {
-          get("", (req, res ) -> "Getting friends...");
+        //requirement: /friends?token=<token>
+        path("/friends", () -> {
+            get("", (req, res ) -> "Request Parameters - token: " + req.queryParams("token"));
+        });
 
-      });
+        //requirement: /login?username=<username>&password=<pass>
+        path("/login", () -> {
+            get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
 
-      //add custom 404 handling for any path that is not matched above
-      //we might be able to use this to send back an invalid request json
-      path("/",() -> {
-          notFound("<html><body><h1>Custom 404 handling</h1></body></html>");
+        });
 
-      });
+        //add custom 404 handling for any path that is not matched above
+        //we might be able to use this to send back an invalid request json
+        path("/",() -> {
+            notFound("<html><body><h1>CSC412 Assignment 2</h1><img src=\"https://i.kym-cdn.com/photos/images/original/000/232/248/483.png\"</body></html>");
+
+        });
 
 
     }//end main method
