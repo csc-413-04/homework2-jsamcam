@@ -38,7 +38,7 @@ public class Main {
         MongoClient mongoClient = new MongoClient("localhost", 27017);
 
         //connecting to the specific database on the MongoDB database by providing the name of the database
-        MongoDatabase database = mongoClient.getDatabase("MyDatabase");
+        MongoDatabase database = mongoClient.getDatabase("REST2");
         System.out.println("Database Name: " + database.getName());
 
         //getting a list of all of the databases that are available on the server to test the connection
@@ -51,7 +51,7 @@ public class Main {
         MongoCollection<Document> myDatabaseUsersCollection = database.getCollection("users");
 
         //getting a Table/Collection for the session tokens that we'll use to manage authentication
-        MongoCollection<Document> sessionTokenCollection = database.getCollection("tokens");
+        MongoCollection<Document> sessionTokenCollection = database.getCollection("auth");
 
         //creating an object to add to the Table/Collection in the database on the server
         Document userToBeAdded = new Document("username", "jsamcam")
@@ -88,6 +88,14 @@ public class Main {
         //requirement: /newuser?username=<username>&password=<pass>
         path("/newuser", () -> {
             get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
+            post("",(req,res) ->{
+                UserService.addUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection);
+                //boilerplate that's required for the response headers
+                res.type("application/json");
+
+                //placeholder, would return proper response
+                return "{\"status\":\"SUCCESS\",\"message\":\"user added\"}";
+            });
         });
 
         //requirement: /addfriend?token=<token>&friend=<freindsuserid>
