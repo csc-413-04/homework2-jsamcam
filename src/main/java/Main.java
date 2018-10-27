@@ -84,7 +84,7 @@ public class Main {
         //requirement: /newuser?username=<username>&password=<pass>
         path("/newuser", () -> {
             get("",(req,res) ->{
-                UserService.addUser("bill", "1234", myDatabaseUsersCollection);
+                UserService.addUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection);
                 //boilerplate that's required for the response headers
                 res.type("application/json");
                 //placeholder, would return proper response
@@ -94,8 +94,12 @@ public class Main {
 
         //requirement: /addfriend?token=<token>&friend=<freindsuserid>
         path("/addfriend", () -> {
-            get("", (req, res) -> "Request Parameters - token: " + req.queryParams("token") + " friend " + req.queryParams("friend"));
-        });
+                get("", (req, res) -> {
+                    UserService.addFriend(req.queryParams("token"), req.queryParams("friend"), myDatabaseUsersCollection);
+                    return "okay";
+
+                });
+            });
 
         //requirement: /friends?token=<token>
         path("/friends", () -> {
