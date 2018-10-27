@@ -8,9 +8,8 @@ public class UserService {
     //add user to collection
     public static void addUser (String username, String password, MongoCollection collection){
 
-        Document userToBeAdded = new Document("username", "Nbesse")
-                .append("username", username )
-                .append("password", password);
+        Document userToBeAdded = new Document("username", "bill")
+                .append("password", "1234");
         collection.insertOne(userToBeAdded);
     }
 

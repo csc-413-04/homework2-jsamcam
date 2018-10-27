@@ -55,13 +55,9 @@ public class Main {
 
         //creating an object to add to the Table/Collection in the database on the server
         Document userToBeAdded = new Document("username", "jsamcam")
-                .append("firstName","Joel")
-                .append("lastName","Samaniego Campos")
                 .append("password","password");
 
         Document anotherUserToBeAdded = new Document("username", "Nbesse")
-                .append("firstName","Nick")
-                .append("lastName","Besse")
                 .append("password","password1");
 
         //we can get a timestamp by using the java.time.Instant.now() method
@@ -74,12 +70,12 @@ public class Main {
         myDatabaseUsersCollection.insertOne(anotherUserToBeAdded);
 
         sessionTokenCollection.insertOne(userLoginToken);
-        //Storing a Document object from a record/Document that is retrieved from the Table/Collection in the database
-        Document retrievedFromDatabase = myDatabaseUsersCollection.find().first();
-        System.out.println(retrievedFromDatabase.toString());
-
-        //retrieving a token from the token/timestamp database
-        System.out.println((sessionTokenCollection.find().first()));
+//        //Storing a Document object from a record/Document that is retrieved from the Table/Collection in the database
+//        Document retrievedFromDatabase = myDatabaseUsersCollection.find().first();
+//        System.out.println(retrievedFromDatabase.toString());
+//
+//        //retrieving a token from the token/timestamp database
+//        System.out.println((sessionTokenCollection.find().first()));
 
         ///newuser?username=<username>&password=<pass>
 
@@ -87,12 +83,10 @@ public class Main {
 
         //requirement: /newuser?username=<username>&password=<pass>
         path("/newuser", () -> {
-            get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
-            post("",(req,res) ->{
-                UserService.addUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection);
+            get("",(req,res) ->{
+                UserService.addUser("bill", "1234", myDatabaseUsersCollection);
                 //boilerplate that's required for the response headers
                 res.type("application/json");
-
                 //placeholder, would return proper response
                 return "{\"status\":\"SUCCESS\",\"message\":\"user added\"}";
             });
