@@ -1,10 +1,17 @@
 package main.java;
+import static com.mongodb.client.model.Filters.eq;
 import static spark.Spark.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.List.*;
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 
 import javax.print.Doc;
 //import com.google.code.gson.*;
@@ -32,7 +39,6 @@ public class Main {
         staticFiles.externalLocation("public");
         // http://sparkjava.com/documentation
         port(1234);
-        // calling get will make your app start listening for the GET path with the /hello endpoint
 
         //connecting to the MongoDB Server, use Robo 3t to start MongoDB on your computer
         MongoClient mongoClient = new MongoClient("localhost", 27017);
@@ -44,7 +50,6 @@ public class Main {
         //getting a list of all of the databases that are available on the server to test the connection
         java.util.List<String> databaseNamesOnServer = mongoClient.getDatabaseNames();
         System.out.println("The server contains:" + databaseNamesOnServer);
-
 
         //getting a specific Table from the database on the server
         //the generics class here is <Document> but we will use a gson/json object later
@@ -77,9 +82,8 @@ public class Main {
 //        //retrieving a token from the token/timestamp database
 //        System.out.println((sessionTokenCollection.find().first()));
 
-        ///newuser?username=<username>&password=<pass>
-
-        get("/hello", (req, res) -> "Hello Worlds");
+        Document myDoc = myDatabaseUsersCollection.find(eq("username","Tom")).first();
+        System.out.println(myDoc);
 
         //requirement: /newuser?username=<username>&password=<pass>
         path("/newuser", () -> {
@@ -92,6 +96,14 @@ public class Main {
             });
         });
 
+        //Add method to UserSerivice to check login credentials
+        //requirement: /login?username=<username>&password=<pass>
+        path("/login", () -> {
+            get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
+
+        });
+
+        //Passed a token and friend's username
         //requirement: /addfriend?token=<token>&friend=<freindsuserid>
         path("/addfriend", () -> {
                 get("", (req, res) -> {
@@ -104,12 +116,6 @@ public class Main {
         //requirement: /friends?token=<token>
         path("/friends", () -> {
             get("", (req, res ) -> "Request Parameters - token: " + req.queryParams("token"));
-        });
-
-        //requirement: /login?username=<username>&password=<pass>
-        path("/login", () -> {
-            get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
-
         });
 
         //add custom 404 handling for any path that is not matched above
