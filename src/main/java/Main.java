@@ -1,10 +1,17 @@
 package main.java;
+import static com.mongodb.client.model.Filters.eq;
 import static spark.Spark.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.List.*;
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 
 import javax.print.Doc;
 //import com.google.code.gson.*;
@@ -32,7 +39,6 @@ public class Main {
         staticFiles.externalLocation("public");
         // http://sparkjava.com/documentation
         port(1234);
-        // calling get will make your app start listening for the GET path with the /hello endpoint
 
         //connecting to the MongoDB Server, use Robo 3t to start MongoDB on your computer
         MongoClient mongoClient = new MongoClient("localhost", 27017);
@@ -45,7 +51,6 @@ public class Main {
         java.util.List<String> databaseNamesOnServer = mongoClient.getDatabaseNames();
         System.out.println("The server contains:" + databaseNamesOnServer);
 
-
         //getting a specific Table from the database on the server
         //the generics class here is <Document> but we will use a gson/json object later
         MongoCollection<Document> myDatabaseUsersCollection = database.getCollection("users");
@@ -55,13 +60,9 @@ public class Main {
 
         //creating an object to add to the Table/Collection in the database on the server
         Document userToBeAdded = new Document("username", "jsamcam")
-                .append("firstName","Joel")
-                .append("lastName","Samaniego Campos")
                 .append("password","password");
 
         Document anotherUserToBeAdded = new Document("username", "Nbesse")
-                .append("firstName","Nick")
-                .append("lastName","Besse")
                 .append("password","password1");
 
         //we can get a timestamp by using the java.time.Instant.now() method
@@ -74,44 +75,47 @@ public class Main {
         myDatabaseUsersCollection.insertOne(anotherUserToBeAdded);
 
         sessionTokenCollection.insertOne(userLoginToken);
-        //Storing a Document object from a record/Document that is retrieved from the Table/Collection in the database
-        Document retrievedFromDatabase = myDatabaseUsersCollection.find().first();
-        System.out.println(retrievedFromDatabase.toString());
+//        //Storing a Document object from a record/Document that is retrieved from the Table/Collection in the database
+//        Document retrievedFromDatabase = myDatabaseUsersCollection.find().first();
+//        System.out.println(retrievedFromDatabase.toString());
+//
+//        //retrieving a token from the token/timestamp database
+//        System.out.println((sessionTokenCollection.find().first()));
 
-        //retrieving a token from the token/timestamp database
-        System.out.println((sessionTokenCollection.find().first()));
-
-        ///newuser?username=<username>&password=<pass>
-
-        get("/hello", (req, res) -> "Hello Worlds");
+        Document myDoc = myDatabaseUsersCollection.find(eq("username","Tom")).first();
+        System.out.println(myDoc);
 
         //requirement: /newuser?username=<username>&password=<pass>
         path("/newuser", () -> {
-            get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
-            post("",(req,res) ->{
+            get("",(req,res) ->{
                 UserService.addUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection);
                 //boilerplate that's required for the response headers
                 res.type("application/json");
-
                 //placeholder, would return proper response
                 return "{\"status\":\"SUCCESS\",\"message\":\"user added\"}";
             });
         });
 
-        //requirement: /addfriend?token=<token>&friend=<freindsuserid>
-        path("/addfriend", () -> {
-            get("", (req, res) -> "Request Parameters - token: " + req.queryParams("token") + " friend " + req.queryParams("friend"));
-        });
-
-        //requirement: /friends?token=<token>
-        path("/friends", () -> {
-            get("", (req, res ) -> "Request Parameters - token: " + req.queryParams("token"));
-        });
-
+        //Add method to UserSerivice to check login credentials
         //requirement: /login?username=<username>&password=<pass>
         path("/login", () -> {
             get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
 
+        });
+
+        //Passed a token and friend's username
+        //requirement: /addfriend?token=<token>&friend=<freindsuserid>
+        path("/addfriend", () -> {
+                get("", (req, res) -> {
+                    UserService.addFriend(req.queryParams("token"), req.queryParams("friend"), myDatabaseUsersCollection);
+                    return "okay";
+
+                });
+            });
+
+        //requirement: /friends?token=<token>
+        path("/friends", () -> {
+            get("", (req, res ) -> "Request Parameters - token: " + req.queryParams("token"));
         });
 
         //add custom 404 handling for any path that is not matched above
