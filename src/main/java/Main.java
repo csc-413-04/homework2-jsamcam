@@ -99,8 +99,13 @@ public class Main {
         //Add method to UserSerivice to check login credentials
         //requirement: /login?username=<username>&password=<pass>
         path("/login", () -> {
-            get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
-
+            get("", (req, res) -> {
+                    if (UserService.checkUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection ) == true) {
+                        return "Login Successful!";
+                    } else {
+                        return "Login Failed, try again";
+                    }
+            });
         });
 
         //Passed a token and friend's username

@@ -17,12 +17,34 @@ public class UserService {
         collection.insertOne(userToBeAdded);
     }
 
-    public static void checkUser (String username, String password, MongoCollection collection){
+    public static Boolean checkUser (String username, String password, MongoCollection collection){
         /*Grabs the username's document with password
         Will need to create a check to extract password and check with provided password.
         If either fails (to find username or match password) return Authentication_Failed.
          */
-            Document myDoc = (Document) collection.find(eq("username", username)).first();
+                try {
+                    Document myDoc = (Document) collection.find(eq("username", username)).first();
+
+                    //finding and stringifying the username in the database
+                    Object actualUsername = myDoc.get("username");
+                    String actualUsernameString = actualUsername.toString();
+
+                    //finding and stringifying the password in the database
+                    Object actualPassword = myDoc.get("password");
+                    String actualPasswordString = actualPassword.toString();
+
+
+                    if (actualUsernameString.equals(username) && actualPasswordString.equals(password)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                catch (NullPointerException e){
+                    return false;
+                }
+
+
     }
 
     //add friend to collection
