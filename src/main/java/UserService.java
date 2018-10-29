@@ -17,7 +17,7 @@ public class UserService {
         collection.insertOne(userToBeAdded);
     }
 
-    public static Boolean checkUser (String username, String password, MongoCollection collection){
+    public static Boolean checkUser (String username, String password, MongoCollection collection, MongoCollection tokencollection){
         /*Grabs the username's document with password
         Will need to create a check to extract password and check with provided password.
         If either fails (to find username or match password) return Authentication_Failed.
@@ -35,6 +35,10 @@ public class UserService {
 
 
                     if (actualUsernameString.equals(username) && actualPasswordString.equals(password)) {
+                        Document userLoginToken = new Document("timestamp", java.time.Instant.now().toString())
+                                .append ("username",username);
+                        tokencollection.insertOne(userLoginToken);
+                        System.out.println(userLoginToken);
                         return true;
                     } else {
                         return false;

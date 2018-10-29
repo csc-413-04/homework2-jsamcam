@@ -100,10 +100,14 @@ public class Main {
         //requirement: /login?username=<username>&password=<pass>
         path("/login", () -> {
             get("", (req, res) -> {
-                    if (UserService.checkUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection ) == true) {
-                        return "Login Successful!";
+                    if (UserService.checkUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection, sessionTokenCollection ) == true) {
+                        //retrieving login session token
+                        Document sessiontoken = (Document) sessionTokenCollection.find(eq("username", req.queryParams("username"))).first();
+                        Object tokenObject = sessiontoken.get("timestamp");
+                        String tokenString = tokenObject.toString();
+                        return tokenString;
                     } else {
-                        return "Login Failed, try again";
+                        return "login_failed";
                     }
             });
         });
