@@ -99,8 +99,17 @@ public class Main {
         //Add method to UserSerivice to check login credentials
         //requirement: /login?username=<username>&password=<pass>
         path("/login", () -> {
-            get("", (req, res) -> "Request Parameters - username: " + req.queryParams("username") + " password: " + req.queryParams("password"));
-
+            get("", (req, res) -> {
+                    if (UserService.checkUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection, sessionTokenCollection ) == true) {
+                        //retrieving login session token
+                        Document sessiontoken = (Document) sessionTokenCollection.find(eq("username", req.queryParams("username"))).first();
+                        Object tokenObject = sessiontoken.get("timestamp");
+                        String tokenString = tokenObject.toString();
+                        return tokenString;
+                    } else {
+                        return "login_failed";
+                    }
+            });
         });
 
         //Passed a token and friend's username
