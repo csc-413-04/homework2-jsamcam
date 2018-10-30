@@ -1,33 +1,10 @@
 package main.java;
 import static com.mongodb.client.model.Filters.eq;
 import static spark.Spark.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.List.*;
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-
-import javax.print.Doc;
-//import com.google.code.gson.*;
-
-/*
-
-I found a tutorial here https://dzone.com/articles/building-simple-restful-api
-https://blog.openshift.com/developing-single-page-web-applications-using-java-8-spark-mongodb-and-angularjs/
-
-Mongodb java documentation  https://mongodb-documentation.readthedocs.io/en/latest/ecosystem/tutorial/getting-started-with-java-driver.html
-Added PATH to my .bash_profile in order to be able to launch mongod from the terminal.  Also had to indicate the --dbpath value when trying to launch mongod
-https://docs.mongodb.com/v3.2/tutorial/install-mongodb-on-os-x/
-http://mongodb.github.io/mongo-java-driver/3.4/driver/getting-started/quick-start/
-
-*/
-
 
 public class Main {
 
@@ -61,24 +38,28 @@ public class Main {
         //requirement: /newuser?username=<username>&password=<pass>
         path("/newuser", () -> {
             get("",(req,res) ->
-                UserService.addUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection));
+                UserService.addUser(req.queryParams("username"), req.queryParams("password"),
+                        myDatabaseUsersCollection));
         });
 
         //requirement: /login?username=<username>&password=<pass>
         path("/login", () -> {
             get("", (req, res) ->
-                UserService.checkUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection, sessionTokenCollection));
+                UserService.checkUser(req.queryParams("username"), req.queryParams("password"),
+                        myDatabaseUsersCollection, sessionTokenCollection));
         });
 
         //requirement: /addfriend?token=<token>&friend=<freindsuserid>
         path("/addfriend", () -> {
                 get("", (req, res) ->
-                    UserService.addFriend(req.queryParams("token"), req.queryParams("friend"), myDatabaseUsersCollection, sessionTokenCollection));
+                    UserService.addFriend(req.queryParams("token"), req.queryParams("friend"),
+                            myDatabaseUsersCollection, sessionTokenCollection));
             });
 
         //requirement: /friends?token=<token>
         path("/friends", () -> {
-            get("", (req, res ) -> UserService.checkFriend(req.queryParams("token"), myDatabaseUsersCollection));
+            get("", (req, res ) -> UserService.checkFriend(req.queryParams("token"),
+                    myDatabaseUsersCollection));
         });
 
         //add custom 404 handling for any path that is not matched above
