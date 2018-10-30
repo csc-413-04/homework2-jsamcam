@@ -58,73 +58,27 @@ public class Main {
         //getting a Table/Collection for the session tokens that we'll use to manage authentication
         MongoCollection<Document> sessionTokenCollection = database.getCollection("auth");
 
-        //creating an object to add to the Table/Collection in the database on the server
-        Document userToBeAdded = new Document("username", "jsamcam")
-                .append("password","password");
-
-        Document anotherUserToBeAdded = new Document("username", "Nbesse")
-                .append("password","password1");
-
-        //we can get a timestamp by using the java.time.Instant.now() method
-        System.out.println(java.time.Instant.now());
-
-        Document userLoginToken = new Document("timestamp", java.time.Instant.now().toString());
-
-        //inserting records/Documents into the Table/Collection in the database
-        myDatabaseUsersCollection.insertOne(userToBeAdded);
-        myDatabaseUsersCollection.insertOne(anotherUserToBeAdded);
-
-        sessionTokenCollection.insertOne(userLoginToken);
-//        //Storing a Document object from a record/Document that is retrieved from the Table/Collection in the database
-//        Document retrievedFromDatabase = myDatabaseUsersCollection.find().first();
-//        System.out.println(retrievedFromDatabase.toString());
-//
-//        //retrieving a token from the token/timestamp database
-//        System.out.println((sessionTokenCollection.find().first()));
-
-        Document myDoc = myDatabaseUsersCollection.find(eq("username","Tom")).first();
-        System.out.println(myDoc);
-
         //requirement: /newuser?username=<username>&password=<pass>
         path("/newuser", () -> {
-            get("",(req,res) ->{
-                UserService.addUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection);
-                //boilerplate that's required for the response headers
-                res.type("application/json");
-                //placeholder, would return proper response
-                return "{\"status\":\"SUCCESS\",\"message\":\"user added\"}";
-            });
+            get("",(req,res) ->
+                UserService.addUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection));
         });
 
-        //Add method to UserSerivice to check login credentials
         //requirement: /login?username=<username>&password=<pass>
         path("/login", () -> {
-            get("", (req, res) -> {
-                    if (UserService.checkUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection, sessionTokenCollection ) == true) {
-                        //retrieving login session token
-                        Document sessiontoken = (Document) sessionTokenCollection.find(eq("username", req.queryParams("username"))).first();
-                        Object tokenObject = sessiontoken.get("timestamp");
-                        String tokenString = tokenObject.toString();
-                        return tokenString;
-                    } else {
-                        return "login_failed";
-                    }
-            });
+            get("", (req, res) ->
+                UserService.checkUser(req.queryParams("username"), req.queryParams("password"), myDatabaseUsersCollection, sessionTokenCollection));
         });
 
-        //Passed a token and friend's username
         //requirement: /addfriend?token=<token>&friend=<freindsuserid>
         path("/addfriend", () -> {
-                get("", (req, res) -> {
-                    UserService.addFriend(req.queryParams("token"), req.queryParams("friend"), myDatabaseUsersCollection);
-                    return "okay";
-
-                });
+                get("", (req, res) ->
+                    UserService.addFriend(req.queryParams("token"), req.queryParams("friend"), myDatabaseUsersCollection, sessionTokenCollection));
             });
 
         //requirement: /friends?token=<token>
         path("/friends", () -> {
-            get("", (req, res ) -> "Request Parameters - token: " + req.queryParams("token"));
+            get("", (req, res ) -> UserService.checkFriend(req.queryParams("token"), myDatabaseUsersCollection));
         });
 
         //add custom 404 handling for any path that is not matched above
@@ -133,7 +87,6 @@ public class Main {
             notFound("<html><body><h1>CSC412 Assignment 2</h1><img src=\"https://i.kym-cdn.com/photos/images/original/000/232/248/483.png\"</body></html>");
 
         });
-
 
     }//end main method
 }//end Main class

@@ -10,14 +10,15 @@ import static com.mongodb.client.model.Filters.eq;
 public class UserService {
 
     //add user to collection
-    public static void addUser (String username, String password, MongoCollection collection){
+    public static String addUser (String username, String password, MongoCollection collection){
 
         Document userToBeAdded = new Document("username", username)
                 .append("password", password);
         collection.insertOne(userToBeAdded);
+        return "okay";
     }
 
-    public static Boolean checkUser (String username, String password, MongoCollection collection, MongoCollection tokencollection){
+    public static String checkUser (String username, String password, MongoCollection collection, MongoCollection tokencollection){
         /*Grabs the username's document with password
         Will need to create a check to extract password and check with provided password.
         If either fails (to find username or match password) return Authentication_Failed.
@@ -39,51 +40,60 @@ public class UserService {
                                 .append ("username",username);
                         tokencollection.insertOne(userLoginToken);
                         System.out.println(userLoginToken);
-                        return true;
+
+                        Document sessiontoken = (Document) tokencollection.find(eq("username", username)).first();
+                        Object tokenObject = sessiontoken.get("timestamp");
+                        String tokenString = tokenObject.toString();
+                        return tokenString;
+
                     } else {
-                        return false;
+                        return "authentication_failed";
                     }
                 }
                 catch (NullPointerException e){
-                    return false;
+                    return "authentication_faied";
                 }
 
 
     }
 
     //add friend to collection
-    public static void addFriend ( String token, String username, MongoCollection collection){
+    public static String addFriend ( String token, String username, MongoCollection collection, MongoCollection tokencollection){
 
         /*
         Will add friend into document with token provided, still need to check if it's a valid token
         Will need to pass auth collection and find function, if failed or return null, Authentication_failed
-
          */
-        Document friendToBeAdded = new Document("username", username)
-                    .append("token", token);
+
+            Document myDoc = (Document) tokencollection.find(eq("timestamp", token)).first();
+
+            if (myDoc != null) {
+                Document friendToBeAdded = new Document("friend", username)
+                        .append("timestamp", token);
                 collection.insertOne(friendToBeAdded);
+                return "okay";
+            }
+
+            else {
+                return "authentication_failed";
+            }
+
     }
 
-    public UserService checkFriend (String token, MongoCollection collection){
+    public static String checkFriend (String token, MongoCollection collection){
         /*grabs the Friends document linked to the token provided
         Will need to return the token as a response in the main class
          */
-        Document myDoc = (Document) collection.find(eq("token", token)).first();
-        return null;
-    }
+        try{
+            Document myDoc = (Document) collection.find(eq("timestamp", token)).first();
+            Object friendName = myDoc.get("friend");
+            String friendNameString = friendName.toString();
 
-    public User getUser (String userId, String collection){
-        //get user by ID
-        return null;
+            return friendNameString;
+        }
+        catch (NullPointerException e){
+            return "No friends added";
+        }
     }
-
-    public void editUser (String userId, String collection){
-        //update user by ID
-    }
-
-    public void deleteUser (String userId, String collection){
-        //delete user by ID
-    }
-
 
 }//end UserService class
