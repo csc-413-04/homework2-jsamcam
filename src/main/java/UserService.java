@@ -15,7 +15,7 @@ public class UserService {
         } else {
             Document userToBeAdded = new Document("username", username).append("password", password);
             collection.insertOne(userToBeAdded);
-            return "{\"okay\"}";
+            return "okay";
         }
     }
 
@@ -43,14 +43,14 @@ public class UserService {
                 Document sessiontoken = (Document) tokencollection.find(eq("username", username)).first();
                 Object tokenObject = sessiontoken.get("timestamp");
                 String tokenString = tokenObject.toString();
-                    return "{\"" + tokenString + "\"}";
+                    return tokenString;
 
             } else {
-                    return "{\"login_failed\"}";
+                    return "login_failed";
             }
         }
         catch (NullPointerException e){
-                return "{\"failed_authentication\"}";
+                return "failed_authentication";
         }
     }
 
@@ -71,10 +71,10 @@ public class UserService {
             Document friendToBeAdded = new Document("friend", username)
                    .append("timestamp", token);
             collection.insertOne(friendToBeAdded);
-                return "{\"okay\"}";
+                return "okay";
         }
         else {
-            return "{\"failed_authentication\"}";
+            return "failed_authentication";
         }
     }
 
@@ -90,7 +90,7 @@ public class UserService {
                 Document myDoc = (Document) collection.find(eq("timestamp", token)).first();
                 Object friendName = myDoc.get("friend");
                 String friendNameString = friendName.toString();
-                return "{\"" + friendNameString + "\"}";
+                return friendNameString;
             } catch (NullPointerException e) {
                 return "{\"No friends, null \"}";
             }
