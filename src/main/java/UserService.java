@@ -50,7 +50,7 @@ public class UserService {
             }
         }
         catch (NullPointerException e){
-                return "failed_authentication";
+                return "login_failed";
         }
     }
 
